@@ -1,6 +1,4 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { db, collection } from "../firebase";
-import { getDocs } from "firebase/firestore";
 import PropTypes from "prop-types";
 import SwipeableViews from "react-swipeable-views";
 import { useTheme } from "@mui/material/styles";
@@ -136,22 +134,8 @@ export default function FullWidthTabs() {
     });
   }, []);
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(() => {
     try {
-      const projectCollection = collection(db, "projects");
-      const certificateCollection = collection(db, "certificates");
-
-      const [projectSnapshot, certificateSnapshot] = await Promise.all([
-        getDocs(projectCollection),
-        getDocs(certificateCollection),
-      ]);
-
-      const fetchedProjects = projectSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-        TechStack: doc.data().TechStack || [],
-      }));
-
       const newProjects = [
         {
           id: "pranexa-pet-care",
@@ -181,11 +165,11 @@ export default function FullWidthTabs() {
 
       const allowedProjects = ["Pranexa", "Campus Safety", "Laptop Price", "Growtopic Calculator"];
       
-      const allProjects = [...newProjects, ...fetchedProjects].filter(project => {
+      const allProjects = [...newProjects].filter(project => {
         return allowedProjects.some(allowed => project.Title && project.Title.includes(allowed));
       });
 
-      const certificateData = certificateSnapshot.docs.map((doc) => doc.data());
+      const certificateData = [];
 
       setProjects(allProjects);
       setCertificates(certificateData);
@@ -194,7 +178,7 @@ export default function FullWidthTabs() {
       localStorage.setItem("projects", JSON.stringify(allProjects));
       localStorage.setItem("certificates", JSON.stringify(certificateData));
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error("Error setting data:", error);
     }
   }, []);
 
